@@ -20,15 +20,20 @@ export async function storeMessage(room: string, message: Message) {
     await redis.ltrim(`chat:${room}`, 0, 99);
 }
 
+
 export async function getMessages(room: string): Promise<Message[]> {
     const messages = await redis.lrange(`chat:${room}`, 0, -1);
     return messages
         .map((msg) => {
             try {
+                let parsedMsg = msg;
                 return {
-                    sender: msg.sender || "Unknown",
-                    message: msg.message || "",
-                    timestamp: msg.timestamp || Date.now(),
+                    // @ts-ignore
+                    sender: parsedMsg.sender || "Unknown",
+                    // @ts-ignore
+                    message: parsedMsg.message || "",
+                    // @ts-ignore
+                    timestamp: parsedMsg.timestamp || Date.now(),
                 };
             } catch (error) {
                 console.error("Error parsing message:", msg);
@@ -50,5 +55,6 @@ export async function setUsername(room: string, userId: string, username: string
 export async function getUsername(room: string, userId: string): Promise<string> {
     const username = await redis.hget(`users:${room}`, userId);
     console.log("Username: ", username )
+    // @ts-ignore
     return username || "Anonymous";
 }
