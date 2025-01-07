@@ -34,7 +34,7 @@ export default function ChatRoom() {
         };
      
         fetchMessages();
-        const intervalId = setInterval(fetchMessages, 1000); // Poll every second
+        const intervalId = setInterval(fetchMessages, 10000); // Poll every second
      
         return () => clearInterval(intervalId);
     }, [room]);
