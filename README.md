@@ -2,6 +2,8 @@
 
 This project demonstrates how to build a real-time group chat application using Redis Pub/Sub and Next.js 15. The application leverages Redis for its publish/subscribe messaging capabilities to enable efficient real-time communication.
 
+This site was built by following the documentation from [getstream.io](https://getstream.io/blog/redis-group-chat/)
+
 ## Features
 
 - Real-time messaging with Redis Pub/Sub
@@ -23,5 +25,5 @@ Follow these steps to set up and run the project locally:
 1. **Clone the repository:**
 
    ```bash
-   git clone https://github.com/yourusername/redis-group-chat.git
+   git clone https://github.com/nilootpal/.git
    cd redis-group-chat
