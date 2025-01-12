@@ -20,19 +20,18 @@ export default function ChatRoom() {
     const [messages, setMessages] = useState<Message[]>([]);
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const lastTimestampRef = useRef(0);
+    const fetchMessages = async () => {
+        const response = await fetch(
+            `/api/messages?room=${room}&lastTimestamp=${lastTimestampRef.current}`
+        );
+        const newMessages: Message[] = await response.json();
+        if (newMessages.length > 0) {
+            setMessages((prevMessages) => [...newMessages, ...prevMessages]);
+            lastTimestampRef.current = Math.max(...newMessages.map((msg) => msg.timestamp));
+        }
+    };
 
     useEffect(() => {
-        const fetchMessages = async () => {
-            const response = await fetch(
-                `/api/messages?room=${room}&lastTimestamp=${lastTimestampRef.current}`
-            );
-            const newMessages: Message[] = await response.json();
-            if (newMessages.length > 0) {
-                setMessages((prevMessages) => [...prevMessages, ...newMessages]);
-                lastTimestampRef.current = Math.max(...newMessages.map((msg) => msg.timestamp));
-            }
-        };
-     
         fetchMessages();
         const intervalId = setInterval(fetchMessages, 10000); // Poll every second
      
@@ -55,6 +54,7 @@ export default function ChatRoom() {
      
         if (response.ok) {
             setInput("");
+            fetchMessages();
         }
     };
 
@@ -75,7 +75,7 @@ export default function ChatRoom() {
 
     if (!isUsernameSet) {
         return (
-          <Card className="w-full max-w-md mx-auto mt-8">
+          <Card className="w-full max-w-md mx-auto mt-8 max-h-[200px]">
                 <CardHeader>
                     <CardTitle>Enter Your Username</CardTitle>
                 </CardHeader>
@@ -88,7 +88,7 @@ export default function ChatRoom() {
                             placeholder="Your username"
                             className="w-full"
                         />
-                        <Button type="submit" className="w-full">
+                        <Button type="submit" className="w-full font-bold">
                             Set Username
                         </Button>
                     </form>
@@ -100,16 +100,25 @@ export default function ChatRoom() {
     return (
         <Card className="w-full max-w-2xl mx-auto">
             <CardHeader>
-                <CardTitle>Chat Room: {room}</CardTitle>
+                <CardTitle className="capitalize">Username: {username}</CardTitle>
+                <CardTitle className="text-md font-semibold lowercase">Chat Room: {room}</CardTitle>
             </CardHeader>
             <CardContent>
                 <div className="h-96 overflow-y-auto mb-4 p-4 border rounded">
-                    {messages.map((msg, index) => (
-                        <div key={index} className="mb-2">
-                            <span className="font-bold">{msg.sender}: </span>
-                            {msg.message}
-                        </div>
-                    ))}
+                    <div className="flex flex-col-reverse">
+                        {messages.map((msg, index) => msg.sender === username ? (
+                                <div key={index} className="mb-2 self-end">
+                                    {msg.message}
+                                    <span className="font-bold"> :{msg.sender}</span>
+                                </div>
+                            ) : (
+                                <div key={index} className="mb-2">
+                                    <span className="font-bold">{msg.sender}: </span>
+                                    {msg.message}
+                                </div>
+                            ) 
+                        )}
+                    </div>
                     <div ref={messagesEndRef} />
                 </div>
                 <form onSubmit={sendMessage} className="flex gap-2">
